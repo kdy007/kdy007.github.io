@@ -1,51 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>NBA 팀 경기 예측</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-  <h1>NBA 팀 경기 예측</h1>
+from flask import Flask, render_template, request
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
 
-  <div>
-    <label for="home-team">Home Team:</label>
-    <input type="text" id="home-team">
-  </div>
+app = Flask(__name__)
 
-  <div>
-    <label for="away-team">Away Team:</label>
-    <input type="text" id="away-team">
-  </div>
+@app.route('/')
+def home():
+    return render_template('index.html')
 
-  <div>
-    <button id="predict-button">예측</button>
-  </div>
+@app.route('/predict', methods=['POST'])
+def predict():
+    home_team = request.form['home-team']
+    away_team = request.form['away-team']
 
-  <div id="prediction-result"></div>
+    # 경기 데이터를 로드하고 전처리
+    df = pd.read_csv('mlb_data.csv')
+    X = df[['HomeScore', 'AwayScore']].values
+    y = df['HomeWin'].values
 
-  <script>
-    $(document).ready(function() {
-      $('#predict-button').click(function() {
-        var homeTeam = $('#home-team').val();
-        var awayTeam = $('#away-team').val();
+    # 로지스틱 회귀 분류기 모델 생성 및 학습
+    model = LogisticRegression()
+    model.fit(X, y)
 
-        // 경기 예측 알고리즘
-        var prediction = predictMatch(homeTeam, awayTeam);
+    # 입력된 팀의 점수를 생성
+    home_score = int(request.form['home-score'])
+    away_score = int(request.form['away-score'])
 
-        // 예측 결과 출력
-        $('#prediction-result').text(prediction);
-      });
+    # 예측
+    prediction = model.predict([[home_score, away_score]])
 
-      function predictMatch(homeTeam, awayTeam) {
-        var random = Math.random(); // 0과 1 사이의 난수 생성
+    result = f'{home_team} vs {away_team}: '
 
-        if (random < 0.5) {
-          return homeTeam + ' 팀이 이길 것으로 예측됩니다.';
-        } else {
-          return awayTeam + ' 팀이 이길 것으로 예측됩니다.';
-        }
-      }
-    });
-  </script>
-</body>
-</html>
+    if prediction == 1:
+        result += f'{home_team} 팀이 이길 것으로 예측됩니다.'
+    else:
+        result += f'{away_team} 팀이 이길 것으로 예측됩니다.'
+
+    return render_template('result.html', result=result)
+
+if __name__ == '__main__':
+    app.run()
