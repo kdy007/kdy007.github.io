@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MLB 경기 승패 예측</title>
+</head>
+<body>
+  <h1>MLB 경기 승패 예측</h1>
+
+  <form action="/predict" method="post">
+    <div>
+      <label for="home-team">Home Team:</label>
+      <input type="text" id="home-team" name="home-team">
+    </div>
+
+    <div>
+      <label for="away-team">Away Team:</label>
+      <input type="text" id="away-team" name="away-team">
+    </div>
+
+    <div>
+      <label for="home-score">Home Score:</label>
+      <input type="number" id="home-score" name="home-score">
+    </div>
+
+    <div>
+      <label for="away-score">Away Score:</label>
+      <input type="number" id="away-score" name="away-score">
+    </div>
+
+    <div>
+      <button type="submit">예측</button>
+    </div>
+  </form>
+</body>
+</html>
